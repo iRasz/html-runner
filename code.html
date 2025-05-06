@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Code Preview Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/xml.min.js"></script>
+    <style>
+        /* semua style tetap seperti versi awal tanpa komentar */
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fas fa-code"></i>
+                HTML Preview Tool
+            </div>
+        </div>
+    </header>
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-content">
+            <h1 class="animate__animated animate__fadeInUp">HTML Code Preview</h1>
+            <p class="animate__animated animate__fadeInUp animate__delay-1s">
+                Tulis kode HTML dan lihat secara langsung hasil render-nya di browser. Cocok untuk web developer, desainer, dan pelajar.
+            </p>
+        </div>
+    </section>
+    <section id="editor" class="container">
+        <div class="editor-section">
+            <div class="editor-container">
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-code"></i> HTML Editor
+                        </div>
+                        <div class="panel-actions">
+                            <button class="panel-action" id="clearBtn" title="Clear Code">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="panel-action" id="copyBtn" title="Copy Code">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="html-code" class="code-editor" placeholder="Tulis kode HTML kamu di sini..."></textarea>
+                </div>
+                <div class="preview-panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <i class="fas fa-eye"></i> Live Preview
+                        </div>
+                        <div class="panel-actions">
+                            <button class="panel-action" id="refreshBtn" title="Refresh Preview">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="panel-action" id="fullscreenBtn" title="Fullscreen Preview">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preview-container">
+                        <iframe id="output" title="Output Preview"></iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button id="runBtn" class="button">
+                    <i class="fas fa-play"></i> Run HTML
+                </button>
+                <button id="autoRunBtn" class="button secondary">
+                    <i class="fas fa-bolt"></i> Auto-Run: OFF
+                </button>
+            </div>
+            <div class="result-stats">
+                <div class="stat">
+                    <i class="fas fa-file-code"></i>
+                    HTML Size: <span id="codeSize">0 Bytes</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-tags"></i>
+                    Elements: <span id="elementCount">0</span>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-clock"></i>
+                    Render Time: <span id="renderTime">0 ms</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="toast" id="toast" style="display: none;">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Code copied to clipboard!</span>
+    </div>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 HTML Preview Tool. All rights reserved.</p>
+            <p>Hubungi kami: <a href="mailto:info@htmlpreviewtool.com" style="color: var(--primary); text-decoration: none;">rassxy@gmail.com</a> | Telp: 0857-2571-3478</p>
+            <p>Follow kami di: 
+                <a href="#" style="color: var(--primary); text-decoration: none;"><i class="fab fa-facebook"></i></a>
+                <a href="#" style="color: var(--primary); text-decoration: none;"><i class="fab fa-twitter"></i></a>
+                <a href="#" style="color: var(--primary); text-decoration: none;"><i class="fab fa-instagram"></i></a>
+            </p>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+            runHTML();
+        });
+        
+        function runHTML() {
+            const startTime = performance.now();
+            const code = document.getElementById('html-code').value;
+            const iframe = document.getElementById('output');
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(code);
+            doc.close();
+            updateStats(code, startTime);
+        }
+
+        function updateStats(code, startTime) {
+            const codeSize = new Blob([code]).size;
+            document.getElementById('codeSize').textContent = formatBytes(codeSize);
+            const elementCount = (code.match(/<[a-z][\s\S]*?>/gi) || []).length;
+            document.getElementById('elementCount').textContent = elementCount;
+            const renderTime = Math.round(performance.now() - startTime);
+            document.getElementById('renderTime').textContent = renderTime + ' ms';
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.style.display = 'flex';
+            toast.className = isError ? 'toast error' : 'toast';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
